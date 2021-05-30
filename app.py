@@ -223,7 +223,7 @@ municipio_name = load_mun_name(cod_municipio=cod_municipio)
 #image = Image.open('imagens/urbtec.png')
 #st.image(image)
 st.markdown(
-    f"<h1 style='text-align: left; color: black;'>PopApp Urbtec -                {municipio_name}</h1>", unsafe_allow_html=True
+    f"<h1 style='text-align: left; color: black;'>PopApp -                {municipio_name}</h1>", unsafe_allow_html=True
 )
 #st.markdown(
 #    f"<h2 style='text-align: left; color: black;'>{municipio_name} </h2>", unsafe_allow_html=True
