@@ -6,6 +6,7 @@ st.set_page_config(layout="wide")
 from PIL import Image
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+import geopandas as gpd
 
 pd.options.display.float_format = "{:,.2f}".format
 
@@ -209,6 +210,53 @@ def plot_pop_pyramid(df, cod_municipio, year):
     return fig, year
 
 
+@st.cache(suppress_st_warning=True)
+def load_geo_dataframe(cod_municipio=4125506):
+    
+    if str(cod_municipio)[:2] == '41':
+        file = 'data/territorio/setores_2010_pb.ftd'
+    elif str(cod_municipio)[:2] == '25':
+        file = 'data/territorio/setores_2010_pr.ftd'
+    else:
+        file = None
+    
+    if file != None:
+        return gpd.read_feather(file)
+
+
+@st.cache(suppress_st_warning=True)
+def plot_density_map(gdf, cod_municipio):
+
+    gdf = gdf.loc[gdf["CD_GEOCODI"] == cod_municipio]
+
+    long = gdf.centroid.x[0]
+    lat = gdf.centroid.y[0]
+
+    px.choropleth_mapbox(
+        data_frame=gdf
+        , geojson=gdf.geometry
+    #    , featureidkey=gdf.index
+        , locations=gdf.index
+        , color='População'
+        , hover_name='CD_GEOCODI'
+        , hover_data=None
+        , zoom=11
+        ,center={"lat": lat, "lon": long}
+        , mapbox_style="carto-positron"
+        , title=None
+        , template=None
+        , width=None
+        , height=None
+        , opacity=0.1
+    )
+
+    fig.update_layout(title_text='<b>Pirâmide Etária<b>', font=dict(size=18))
+
+    return fig, year
+
+
+
+
 cod_municipio = st.sidebar.number_input(
     label="Código do Município",
     min_value=1100015,
@@ -261,8 +309,8 @@ st.plotly_chart(fig_age_groups)
 
 st.markdown(f"**`O índice de urbanização do município é {urbanization_index}`**")
 
-
-
-
-
-
+if (str(cod_municipio)[:2] == '41') or (str(cod_municipio)[:2] == '25'):
+    
+    gdf = load_geo_dataframe(cod_municipio=cod_municipio)
+    
+    plot_density_map(gdf=gdf, cod_municipio=cod_municipio)
