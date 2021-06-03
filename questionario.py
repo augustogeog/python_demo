@@ -61,7 +61,7 @@ list_topics = [ # list of topics that appear as options in the selection box tha
     ]
 
 st.markdown(
-    f"<h1 style='text-align: left; color: black;'>EvalApp - Urbtec</h1>", unsafe_allow_html=True
+    f"<h1 style='text-align: left; color: black;'>DataProficiency App</h1>", unsafe_allow_html=True
 )
 
 Topic = st.selectbox(
