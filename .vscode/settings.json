@@ -1,0 +1,5 @@
+{
+    "python.pythonPath": "C:\\Users\\augus\\Anaconda3\\envs\\aulas\\python.exe",
+    "python.formatting.provider": "black",
+    "python.languageServer": "Jedi"
+}
