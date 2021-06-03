@@ -7,6 +7,7 @@ from PIL import Image
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import geopandas as gpd
+import plotly.io as pio
 
 pd.options.display.float_format = "{:,.2f}".format
 
@@ -309,8 +310,17 @@ st.plotly_chart(fig_age_groups)
 
 st.markdown(f"**`O índice de urbanização do município é {urbanization_index}`**")
 
-if (str(cod_municipio)[:2] == '41') or (str(cod_municipio)[:2] == '25'):
+
+@st.cache(suppress_st_warning=True)
+def load_plotly_map(file):
+    return pio.read_json(file)
+
+
+
+if cod_municipio == 4106902:
     
-    gdf = load_geo_dataframe(cod_municipio=cod_municipio)
-    
-    plot_density_map(gdf=gdf, cod_municipio=cod_municipio)
+    fig_map = load_plotly_map('data/json/curitiba.json')
+    st.plotly_chart(fig_map)
+elif cod_municipio == 4125506:
+    fig_map = load_plotly_map('data/json/sjp.json')
+    st.plotly_chart(fig_map)
