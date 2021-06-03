@@ -28,23 +28,24 @@ def load_df(df_index):
         , 'df9_dificuldade.ftd'
         ]
 
-        df_name = list_dfs[df_index]
+    df_name = list_dfs[df_index]
 
-        df = pd.read_feather('/data/df/' + df_name)
+    df = pd.read_feather('data/df/' + df_name)
 
-        return  = df
+    return df
 
 @st.cache(suppress_st_warning=True)
 def plot(df=None):
     """
     """
-    fig = px.bar(data_frame=df, x=df.columns[0], y=df.columns[1], width=1300, height=400, title='A Verificar')
+    fig = px.bar(data_frame=df, x=df.columns[0], y=df.columns[1], width=1300, height=500)
     fig.update_layout(font=dict(size=18))
 
     return fig
 
 list_topics = [
     'Especialidades'
+    , 'Tipos de dados_dados'
     , 'Conhecimentos'
     , 'Excel'
     , 'Sql'
@@ -55,13 +56,7 @@ list_topics = [
     , 'Algoritmos'
     , 'IA'
     , 'Dificuldade'
-    , 'Tipos de dados_dados']
-
-Topic = st.selectbox(
-    label="Tópico",
-    options =list_topics,
-    help='Tópico cujas respostas devem ser carregadas'
-)
+    ]
 
 #dfs 
 #df1_especialidades = load_df(df_index=0)
@@ -77,15 +72,20 @@ Topic = st.selectbox(
 #df12_ia = load_df(df_index=10)
 #df13_dificuldade = load_df(df_index=1)
 
+st.markdown(
+    f"<h1 style='text-align: left; color: black;'>EvalApp - Urbtec</h1>", unsafe_allow_html=True
+)
+
+Topic = st.selectbox(
+    label="Tópico",
+    options =list_topics,
+    help='Tópico cujas respostas devem ser carregadas'
+)
 
 dict_dfs = {index:load_df(df_index=index) for index in range(12)}
 
 index_topic = list_topics.index(Topic)
 
-
-st.markdown(
-    f"<h1 style='text-align: left; color: black;'>EvalApp - Urbtec</h1>", unsafe_allow_html=True
-)
 #st.markdown(
 #    f"<h2 style='text-align: left; color: black;'>{municipio_name} </h2>", unsafe_allow_html=True
 #)
@@ -93,8 +93,3 @@ st.markdown(
 fig = plot(df=dict_dfs[index_topic])
 
 st.plotly_chart(fig)
-
-
-
-
-
