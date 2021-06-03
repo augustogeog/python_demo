@@ -11,7 +11,7 @@ pd.options.display.float_format = "{:,.2f}".format
 @st.cache(suppress_st_warning=True)
 def load_df(df_index):
     """
-    Under development
+    Loads files from df directory into Pandas DataFrame according to positional index, df_index, from 0 to 11.
     """
     list_dfs = [
         'df1_especialidades.ftd'
@@ -22,10 +22,10 @@ def load_df(df_index):
         , 'df6_python.ftd'
         , 'df7_outra_linguagem.ftd'
         , 'df8_impacto.ftd'
+        , 'df9_dificuldade.ftd'
         , 'df9a_bibliotecas.ftd'
         , 'df9b_algoritmos.ftd'
         , 'df9c_ia.ftd'
-        , 'df9_dificuldade.ftd'
         ]
 
     df_name = list_dfs[df_index]
@@ -37,40 +37,28 @@ def load_df(df_index):
 @st.cache(suppress_st_warning=True)
 def plot(df=None):
     """
+    Generates a bar plot with the DataFrame df loaded by the load_df function  
     """
     fig = px.bar(data_frame=df, x=df.columns[0], y=df.columns[1], width=1300, height=500)
     fig.update_layout(font=dict(size=18))
 
     return fig
 
-list_topics = [
-    'Especialidades'
-    , 'Tipos de dados_dados'
-    , 'Conhecimentos'
-    , 'Excel'
-    , 'Sql'
-    , 'Python'
-    , 'Outra Linguagem'
-    , 'Impacto'
-    , 'Bibliotecas'
-    , 'Algoritmos'
-    , 'IA'
-    , 'Dificuldade'
+ 
+list_topics = [ # list of topics that appear as options in the selection box that spawns the generation of bar plots related to the topics  
+    'Especialidades dos profissionais'
+    , 'Tipos de dados dados com os quais trabalham'
+    , 'Conhecimentos requeridos/úteis no trabalho'
+    , 'Nível de conhecimento de Excel'
+    , 'Nível de conhecimento de Sql'
+    , 'Nível de conhecimento de Python'
+    , 'Conhece outra linguagem de programação'
+    , 'Percepção de nível de impacto que aprender python teve/teria'
+    , 'Percepção de dificuldade para aprendizado de Python'
+    , 'Tipos de pacotes da ecossistema Python que conhece'
+    , 'Famílias de algoritmos que conhece'
+    , 'Reconhece que a IA terá elevado impacto no Planejamento Urbano e Regional'
     ]
-
-#dfs 
-#df1_especialidades = load_df(df_index=0)
-#df2_tipos_dados = load_df(df_index=1)
-#df3_conhecimentos = load_df(df_index=2)
-#df4_excel = load_df(df_index=3)
-#df5_sql = load_df(df_index=4)
-#df6_python = load_df(df_index=5)
-#df7_outra_linguagem = load_df(df_index=6)
-#df8_impacto = load_df(df_index=7)
-#df10_bibliotecas = load_df(df_index=8)
-#df11_algoritmos = load_df(df_index=9)
-#df12_ia = load_df(df_index=10)
-#df13_dificuldade = load_df(df_index=1)
 
 st.markdown(
     f"<h1 style='text-align: left; color: black;'>EvalApp - Urbtec</h1>", unsafe_allow_html=True
@@ -82,14 +70,10 @@ Topic = st.selectbox(
     help='Tópico cujas respostas devem ser carregadas'
 )
 
-dict_dfs = {index:load_df(df_index=index) for index in range(12)}
+dict_dfs = {index:load_df(df_index=index) for index in range(12)} # loading every Pandas DataFrame as value in a dictionary. The keys are indexes from 0 to 11
 
-index_topic = list_topics.index(Topic)
+index_topic = list_topics.index(Topic) # uses the Topic selected from the selectbox to get the corresponding index in the list_topics
 
-#st.markdown(
-#    f"<h2 style='text-align: left; color: black;'>{municipio_name} </h2>", unsafe_allow_html=True
-#)
+fig = plot(df=dict_dfs[index_topic]) # uses the index related to the topic selected on the selection box to choose a DataFrame from dictionary to be ploted 
 
-fig = plot(df=dict_dfs[index_topic])
-
-st.plotly_chart(fig)
+st.plotly_chart(fig) # show the plot on the webapp layout
