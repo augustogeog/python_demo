@@ -39,6 +39,7 @@ def subplot_pop_growth(df_urbrur=None, df_projection=None, cod_municipio=4125506
     subplots.append_trace(go.Scatter(x=df_projection['Ano'], y=df_projection['População'], name='Projetada'), row=1, col=2)
     subplots.update_layout(width=1200, height=500, title_text='<b>Crescimento Demográfico<b>')
     subplots.update_layout(font=dict(size=18))
+    subplots.update_layout(margin=dict(l=0, r=0, b=0, t=50))
 
 #    ano_min = df['Ano'].min()
 #    ano_max = df['Ano'].max()
@@ -180,35 +181,46 @@ def load_age_groups():
         "80 anos ou mais": np.int32,
     }
 
-    df = pd.read_csv("data/pop/estruturaetaria.csv", sep=";")
+    df_estrutura_etaria = pd.read_csv("data/pop/estruturaetaria.csv", sep=";")
 
-    df = df.melt(id_vars=["codmun", "sexo"])
+    df_estrutura_etaria = df_estrutura_etaria.melt(id_vars=["codmun", "sexo"])
 
-    df.columns = ["Código", "Sexo", "Faixa", "População"]
+    df_estrutura_etaria.columns = ["Código", "Sexo", "Faixa", "População"]
+    
+    df_estrutura_etaria_f = df_estrutura_etaria[df_estrutura_etaria['Sexo'] == 'Feminino']
+    df_estrutura_etaria_m = df_estrutura_etaria[df_estrutura_etaria['Sexo'] == 'Masculino']
 
-    return df
+    return df_estrutura_etaria_f, df_estrutura_etaria_m
 
 
 @st.cache(suppress_st_warning=True)
-def plot_pop_pyramid(df, cod_municipio, year):
+def plot_pop_pyramid(df_estrutura_etaria_f, df_estrutura_etaria_m, cod_municipio, year):
+    df_estrutura_etaria_f = df_estrutura_etaria_f[df_estrutura_etaria_f['Código'] == cod_municipio]
+    df_estrutura_etaria_m = df_estrutura_etaria_m[df_estrutura_etaria_m['Código'] == cod_municipio]
 
-    df = df.loc[df["Código"] == cod_municipio]
-    df.loc[:, "População"].loc[df["Sexo"] == "Feminino"] *= -1
+    fig = make_subplots(rows=1, cols=2, shared_yaxes=True, shared_xaxes=True, horizontal_spacing=0.0)
 
-    fig = px.bar(
-        data_frame=df,
-        y="Faixa",
-        x="População",
-        color="Sexo",
-        orientation="h",
-        barmode="overlay"
-        , width=1205
-        , height=600
-    )
+    sub0 = px.bar(data_frame=df_estrutura_etaria_f, y='Faixa', x='População', color='Sexo', orientation='h', color_discrete_map={'Feminino':'rgb(228, 26,28)'}, barmode='overlay')
 
-    fig.update_layout(title_text='<b>Pirâmide Etária<b>', font=dict(size=18))
+    sub0.update_layout(xaxis_autorange='reversed')
+
+    sub1 = px.bar(data_frame=df_estrutura_etaria_m, y='Faixa', x='População', orientation='h', color='Sexo', barmode='overlay')
+
+    fig.add_traces(sub0['data'][0], rows=1, cols=1);
+    fig.add_traces(sub1['data'][0], rows=1, cols=2);
+    fig.data[0].showlegend= False
+    fig.data[1].showlegend= False
+    fig.layout.barmode = 'overlay'
+    fig.layout.xaxis.autorange = 'reversed'
+    fig.layout.xaxis.title.text = 'Feminino'
+    fig.layout.xaxis2.title.text = 'Masculino'
+
+    fig.layout.title.text = f'<b>Pirâmide Etária<b>'
+    fig.update_layout(margin=dict(l=0, r=0, b=0, t=40), width=1075, height=400)
+    fig.layout.title.font.size = 25
 
     return fig, year
+
 
 
 @st.cache(suppress_st_warning=True)
@@ -255,16 +267,30 @@ def plot_density_map(gdf, cod_municipio):
 
     return fig, year
 
+@st.cache(suppress_st_warning=True)
+def load_df_territory():
+    df_territory = pd.read_csv('data/territorio/municipios_brasileiros.csv', sep=';')
+    return df_territory
 
+@st.cache(suppress_st_warning=True)
+def filter_municipalities_by_uf(uf):
+    options = df_territory.municipio.loc[df_territory.uf == uf].values
+    return options
 
+df_territory = load_df_territory()
 
-cod_municipio = st.sidebar.number_input(
-    label="Código do Município",
-    min_value=1100015,
-    max_value=5300108,
-    value=4125506,
-    help="Código de sete dígitos segundo o IBGE",
-)
+uf = st.sidebar.selectbox(label='UF', options=df_territory.uf.unique())
+
+options = filter_municipalities_by_uf(uf=uf)
+
+municipio = st.sidebar.selectbox(label='Município', options=options)
+
+@st.cache(suppress_st_warning=True)
+def get_cod_municipio(uf, municipio):
+    cod_municipio = df_territory.loc[(df_territory.uf == uf) & (df_territory.municipio == municipio)]['cod'].values[0]
+    return cod_municipio
+
+cod_municipio = get_cod_municipio(uf=uf, municipio=municipio)
 
 
 municipio_name = load_mun_name(cod_municipio=cod_municipio)
@@ -272,8 +298,9 @@ municipio_name = load_mun_name(cod_municipio=cod_municipio)
 #image = Image.open('imagens/urbtec.png')
 #st.image(image)
 st.markdown(
-    f"<h1 style='text-align: left; color: black;'>PopApp -                {municipio_name}</h1>", unsafe_allow_html=True
+    f"<h1 style='text-align: right; color: black;'>PopApp</h1>", unsafe_allow_html=True
 )
+st.markdown(f'## {municipio}')
 #st.markdown(
 #    f"<h2 style='text-align: left; color: black;'>{municipio_name} </h2>", unsafe_allow_html=True
 #)
@@ -301,9 +328,11 @@ st.plotly_chart(subplots)
 #st.markdown(f'## **Projeção Populacional até {proj_max}**')
 #st.plotly_chart(fig_projection)
 
-df_age_groups = load_age_groups()
+#df_age_groups = load_age_groups()
 
-fig_age_groups, year = plot_pop_pyramid(df=df_age_groups, cod_municipio=cod_municipio, year=2010)
+df_estrutura_etaria_f, df_estrutura_etaria_m = load_age_groups()
+
+fig_age_groups, year = plot_pop_pyramid(df_estrutura_etaria_f=df_estrutura_etaria_f, df_estrutura_etaria_m=df_estrutura_etaria_m, cod_municipio=cod_municipio, year=2010)
 
 #st.markdown(f'## **Pirâmide Etária em {year}**')
 st.plotly_chart(fig_age_groups)
