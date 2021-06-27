@@ -351,7 +351,7 @@ def load_plotly_map(file):
 @st.cache(suppress_st_warning=True)
 def load_sector_geodataframe(uf,cod_municipio):
     cod_municipio = str(cod_municipio)
-    gdf = pd.read_pickle(f'https://github.com/augustogeog/python_demo/blob/30b1ec2dfccfc435b14f3708cd3d021b7c1637f3/data/territorio/setores2010/{uf}/{cod_municipio}/{cod_municipio}.zip?raw=true')
+    gdf = pd.read_pickle(f'data/territorio/setores2010/{uf}/{cod_municipio}/{cod_municipio}.pkl')
     return gdf
 
 
