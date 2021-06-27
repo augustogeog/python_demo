@@ -351,7 +351,7 @@ def load_plotly_map(file):
 @st.cache(suppress_st_warning=True)
 def load_sector_geodataframe(uf,cod_municipio):
     cod_municipio = str(cod_municipio)
-    gdf = pd.read_pickle(f'data/territorio/setores2010/{uf}/{cod_municipio}/{cod_municipio}.pkl')
+    gdf = gpd.read_file(f'data/territorio/setores2010/{uf}/{cod_municipio}/{cod_municipio}.shp')
     return gdf
 
 
