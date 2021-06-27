@@ -38,8 +38,9 @@ def subplot_pop_growth(df_urbrur=None, df_projection=None, cod_municipio=4125506
     subplots.append_trace(go.Scatter(x=df_pop_rural['Ano'], y=df_pop_rural['População'], name='Rural'), row=1, col=1)
     subplots.append_trace(go.Scatter(x=df_projection['Ano'], y=df_projection['População'], name='Projetada'), row=1, col=2)
     subplots.update_layout(width=1200, height=500, title_text='<b>Crescimento Demográfico<b>')
-    subplots.update_layout(font=dict(size=18))
+    subplots.update_layout(font=dict(size=10))
     subplots.update_layout(margin=dict(l=0, r=0, b=0, t=50))
+    
 
 #    ano_min = df['Ano'].min()
 #    ano_max = df['Ano'].max()
@@ -322,6 +323,9 @@ df_projection = load_projection_data()
 subplots = subplot_pop_growth(df_urbrur=df_urbrur_growth, df_projection=df_projection, cod_municipio=cod_municipio)
 st.plotly_chart(subplots)
 
+'''
+subplots.layout
+'''
 
 #fig_projection, proj_max = plot_projection(df=df_projection, cod_municipio=cod_municipio)
 
