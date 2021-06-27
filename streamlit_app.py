@@ -348,7 +348,37 @@ st.markdown(f"**`O índice de urbanização do município é {urbanization_index
 def load_plotly_map(file):
     return pio.read_json(file)
 
+@st.cache(suppress_st_warning=True)
+def load_sector_geodataframe(uf,cod_municipio):
+    cod_municipio = str(cod_municipio)
+    gdf = pd.read_pickle(f'data/territorio/setores2010/{uf}/{cod_municipio}/{cod_municipio}.zip')
+    return gdf
 
+
+
+if uf == 'PB':
+    gdf1 = load_sector_geodataframe(uf=uf, cod_municipio=cod_municipio)
+    lon = gdf1.dissolve(by='NM_MUNICIP').centroid.x[0]
+    lat = gdf1.dissolve(by='NM_MUNICIP').centroid.y[0]
+
+    fig_map = px.choropleth_mapbox(
+        data_frame=gdf1
+        , geojson=gdf1.geometry
+    #    , featureidkey=gdf.index
+        , locations=gdf1.index
+        , color='Pop/ha'
+    #    , hover_name='CD_GEOCODI'
+        , hover_data=None
+        , zoom=11
+        ,center={"lat": lat, "lon": lon}
+        , mapbox_style="carto-positron"
+        , title=None
+        , template=None
+        , width=None
+        , height=None
+        , opacity=0.3
+        )
+    st.plotly_chart(fig_map, use_container_width=True)
 
 if cod_municipio == 4106902:
     st.markdown(f"<h2 style='text-align: left; color: black;'>Populacão por Setores Censitários</h2>", unsafe_allow_html=True)
@@ -358,3 +388,4 @@ elif cod_municipio == 4125506:
     st.markdown(f"<h2 style='text-align: left; color: black;'>População por Setores Censitários</h2>", unsafe_allow_html=True)
     fig_map = load_plotly_map('data/json/sjp.json')
     st.plotly_chart(fig_map)
+
